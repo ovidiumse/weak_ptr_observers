@@ -1,4 +1,4 @@
-#include <memory> // weak_ptr, enable_shared_from_this, shared_ptr
+#include <memory> // weak_ptr, shared_ptr
 #include <iostream>
 
 #include <set>
@@ -50,7 +50,7 @@ public:
         std::vector<std::weak_ptr<IObserver>> deadObservers;
         deadObservers.reserve(observers_.size());
 
-        for (const auto o : observers_)
+        for (const auto& o : observers_)
         {
             if (const auto observer = o.lock())
             {
@@ -62,7 +62,7 @@ public:
             }
         }
 
-        for (const auto o : deadObservers)
+        for (const auto& o : deadObservers)
         {
             std::cout << "Removing one...\n";
             observers_.erase(o);
@@ -72,7 +72,7 @@ private:
     std::set<std::weak_ptr<IObserver>, Comparator> observers_;
 };
 
-class Manager : public std::enable_shared_from_this<Manager>, public IObserver
+class Manager : public IObserver
 {
     void onSomething(int something) override
     {
@@ -89,9 +89,9 @@ int main()
     {
         auto b = std::make_shared<Manager>();
 
-        cache.addObserver(a->shared_from_this());
-        cache.addObserver(a->shared_from_this());
-        cache.addObserver(b->shared_from_this());
+        cache.addObserver(a);
+        cache.addObserver(a);
+        cache.addObserver(b);
 
         std::cout << "Notifying 5...\n";
         cache.notify(5);
